@@ -5,6 +5,8 @@ Logger for Telegram groups.
 
 Just invite this bot into the groups you want to log and it will automatically save all messages in readable files.
 
+If you do not want to create your own bot and log your (public) channel, message me (`@Jahus`) on Telegram; and if my bot or another is available, we will put it there and send you the logs when needed.
+
 ## Configure the bot
 
 ### 1. Create a Telegram bot
@@ -81,6 +83,8 @@ Emojis are fully supported and saved into the log file using the UNICODE standar
 
 ## Contribution
 
+Other feature to come may be uploading the logs to an FTP folder using a command like `/upload_ftp`.
+
 Don't hesitate to push your contribution, like with the Imgur API ;-)
 
 ----
@@ -94,4 +98,3 @@ _Find me on:_
 > Reddit: [/u/Jahus](http://j.mp/Jahus_reddit)
 > 
 > GitHub: [AhmedDjoudi](http://j.mp/Jahus_github)
-

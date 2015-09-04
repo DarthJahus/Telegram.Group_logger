@@ -4,7 +4,9 @@
 # Forked from Dj4x 3.21.20
 # Change log
 # * 2015-09-03 :
-#     (1.0.0)               - first code
+#     (1.0.0)               - First code
+# * 2015-09-04 :
+#     (1.0.1)               - Showing sender.id in bot log.
 #---------------------------------------------------------------
 # IMPORTS
 #---------------------------------------------------------------
@@ -274,7 +276,7 @@ def telegram_bot_handle_message_text(message):
 		if _text[0] == "<":
 			_from = " [fwd: %s]" % _text[1:].split(">")[0]
 			_text = ' '.join(_text[1:].split(">")[1:])[1:]
-	print("[#%s]\t<%s%s%s> %s" % (message.message_id, message.sender.first_name, _to, _from, _text.encode("UTF-8")))
+	print("[#%s]\t<%s(%s)%s%s> %s" % (message.message_id, message.sender.first_name, message.sender.id, _to, _from, _text.encode("UTF-8")))
 	# Handle commands
 	# user / chat / command / arguments(full_text)
 	if len(_text) > 2 and _text[0] == "/":

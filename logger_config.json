@@ -1,6 +1,6 @@
 {
 	"bot_name": "LogTBot",
-	"bot_version": "1.0.0",
+	"bot_version": "1.0.1",
 	"telegram_params": {
 		"token": "such:sicret_token",
 		"groups": {

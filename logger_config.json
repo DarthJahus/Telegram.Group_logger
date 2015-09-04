@@ -1,0 +1,14 @@
+{
+	"bot_name": "LogTBot",
+	"bot_version": "1.0.0",
+	"telegram_params": {
+		"token": "such:sicret_token",
+		"groups": {
+			"-0": "GroupName",
+			"-1": "AnotherGroup"
+		},
+		"timeout": 10,
+		"timeout_first": 60,
+		"admins": [1]
+	}
+}

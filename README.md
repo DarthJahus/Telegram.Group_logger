@@ -21,7 +21,7 @@ Set your bot name in `bot_name` parameter.
 
 ### 2. Invite your bot to groups you want to watch
 
-Invite your bot into your groups and launch the script. The bot will automatically send a greetings message to the groups, giving at the same time their ID.
+Launch the script and invite your bot into your groups. The bot will automatically send a greetings message to the groups, giving at the same time their ID.
 
 Save these ID in `groups` parameter, and give each group a (custom) name – it is important because group names on Telegram might change or collide. This should seem like this:
 

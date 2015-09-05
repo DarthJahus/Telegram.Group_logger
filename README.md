@@ -62,7 +62,7 @@ Now terminate the script (close the window or use CTRL+C) and run it again, it's
 
 ### Other settings
 
-`timeout` setting désignâtes in seconds the time between new messages check.
+`timeout` setting designates in seconds the time between new messages check.
 
 ## Features and limitations
 

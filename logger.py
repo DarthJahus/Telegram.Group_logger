@@ -10,6 +10,8 @@
 # * 2015-09-06 :
 #     (1.1.1)               - Sending log via Telegram
 #                             Command /get_log
+#     (1.2.1)               - Handling photo messages
+#     (1.2.2)               - Minor bug fix
 #---------------------------------------------------------------
 # IMPORTS
 #---------------------------------------------------------------
@@ -180,6 +182,14 @@ class telegram_classes_Document:
 		else:
 			self.file_size = None			
 #
+class telegram_classes_PhotoSize:
+	def __init__(self, data_json):
+		self.file_id = data_json.get("file_id")
+		self.width = data_json.get("width")
+		self.height = data_json.get("height")
+		if "file_size" in data_json:
+			self.file_size = data_json.get("file_size")
+#
 class telegram_classes_Update:
 	def __init__(self, data_json):
 		self.message = telegram_classes_Message(data_json.get("message"))
@@ -283,6 +293,8 @@ def telegram_bot_read_message(message):
 		telegram_bot_handle_message_chat_title_new(message)
 	elif telegram_types.get("group_chat_created") in message.type:
 		telegram_bot_handle_message_group_chat_created(message)
+	elif telegram_types.get("photo") in message.type:
+		telegram_bot_handle_message_picture(message)
 	else:
 		print("-- read_message(): Message type unhandled")
 #
@@ -361,7 +373,7 @@ def telegram_bot_handle_message_chat_participant_new(message):
 def telegram_bot_handle_message_chat_participant_left(message):
 	print("[#%s]\t** %s left group %s" % (message.message_id, message.left_chat_participant.first_name, message.chat.title))
 	if message.left_chat_participant.id != telegram_bot_info.id:
-		telegram_bot_send_message(message.chat.id, "Bye, %s." & message.left_chat_participant.first_name, reply_to_message_id = message.message_id)
+		telegram_bot_send_message(message.chat.id, "Bye, %s." % message.left_chat_participant.first_name, reply_to_message_id = message.message_id)
 def telegram_bot_handle_message_chat_title_new(message):
 	print("[#%s]\t** Group %s changed title to ""%s""" % (message.message_id, message.chat.id, message.new_chat_title))
 def telegram_bot_handle_message_group_chat_created(message):
@@ -373,6 +385,58 @@ def telegram_bot_handle_message_document(message):
 	print("Sorry, I can't download files for now.")
 def telegram_bot_handle_message_picture(message):
 	print("Sorry, I can't see pictures for now.")
+	_to = ''
+	if message.sender.id != message.chat.id:
+		_to = "@%s" % message.chat.title
+	else:
+		_to = "@%s" % message.sender.first_name
+	#print("telegram_bot_handle_message_picture(message):\n\t\tmessage.photo = %s" % message.photo)
+	# LOGGER
+	logged_groups = config.get("telegram_params").get("groups")
+	if message.chat.id.__str__() in logged_groups:
+		_thumb = telegram_classes_PhotoSize(message.photo[0])
+		_picture = telegram_classes_PhotoSize(message.photo[1])
+		# file size
+		_picture_size = float(_picture.file_size)
+		# units = {
+			# 0: {
+				# "unit": "octets", 
+				# "level": (10 ** (3 * 0))
+			# }
+			# 1: {
+				# "unit": "ko", 
+				# "level": (10 ** (3 * 1))
+			# }
+			# 2: {
+				# "unit": "Mo", 
+				# "level": (10 ** (3 * 2))
+			# }
+			# 3: {
+				# "unit": "Go", 
+				# "level": (10 ** (3 * 3))
+			# }
+		# if _picture_size >  units[1]["level"] * 0.75:
+			# _unit = units[1]["unit"]
+			# _picture_size = _picture_size / units[1]["level"]
+		# elif _picture_size >  units[2]["level"]:
+			# _unit = units[2]["unit"]
+			# _picture_size = _picture_size / units[2]["level"]
+		# elif _picture_size >  units[3]["level"]:
+			# _unit = units[3]["unit"]
+			# _picture_size = _picture_size / units[3]["level"]
+		# else:
+			# _unit = units[0]["unit"]
+			# _picture_size = _picture_size / units[0]["level"]
+		units = ["octets", "ko", "Mo", "Go"]
+		for i in range(4):
+			if _picture_size >  (10 ** (3 * i)) * 0.75:
+				_unit = units[i]
+				_picture_size_new = "%.2f %s" % ((_picture_size / (10 ** (3 * i))), _unit)
+		_line = "* %s has sent a picture to the group. It has %s width, %s height for a size of %s. File unique identifier is: '%s'." % (message.sender.first_name, _picture.width, _picture.height, _picture_size_new, _picture.file_id)
+		_line = "%s | %s" % (time.strftime("%Y-%m-%d @ %H:%M:%S", time.gmtime(message.date)), _line)
+		logger_file_add(logged_groups.get(message.chat.id.__str__()), _line)
+	print("%s: %s sent a picture." % (_to, message.sender.first_name))
+#
 def telegram_bot_handle_message_sticker(message):
 	print("Sorry, I don't care about stickers for now.")
 def telegram_bot_handle_message_video(message):
@@ -445,11 +509,11 @@ def logger_file_add(channel, text):
 # Turn around and check for new messages each timeout time
 def logger_loop():
 	while not HALT:
-		try:
-			print("** logger_loop(): -- time: %s" % (time.strftime("%Y-%m-%d @ %H-%M-%S", time.gmtime())))
-			telegram_bot_get_updates()
-		except:
-			print("** ERROR ** logger_loop(): -- time: %s" % (time.strftime("%Y-%m-%d @ %H-%M-%S", time.gmtime())))
+		#try:
+		print("** logger_loop(): -- time: %s" % (time.strftime("%Y-%m-%d @ %H-%M-%S", time.gmtime())))
+		telegram_bot_get_updates()
+		#except:
+		#	print("** ERROR ** logger_loop(): -- time: %s" % (time.strftime("%Y-%m-%d @ %H-%M-%S", time.gmtime())))
 		timeout = config.get("telegram_params").get("timeout")
 		time.sleep(float(timeout))
 	telegram_bot_get_updates()

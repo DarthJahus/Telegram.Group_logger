@@ -509,11 +509,11 @@ def logger_file_add(channel, text):
 # Turn around and check for new messages each timeout time
 def logger_loop():
 	while not HALT:
-		#try:
-		print("** logger_loop(): -- time: %s" % (time.strftime("%Y-%m-%d @ %H-%M-%S", time.gmtime())))
-		telegram_bot_get_updates()
-		#except:
-		#	print("** ERROR ** logger_loop(): -- time: %s" % (time.strftime("%Y-%m-%d @ %H-%M-%S", time.gmtime())))
+		try:
+			print("** logger_loop(): -- time: %s" % (time.strftime("%Y-%m-%d @ %H-%M-%S", time.gmtime())))
+			telegram_bot_get_updates()
+		except:
+			print("** ERROR ** logger_loop(): -- time: %s" % (time.strftime("%Y-%m-%d @ %H-%M-%S", time.gmtime())))
 		timeout = config.get("telegram_params").get("timeout")
 		time.sleep(float(timeout))
 	telegram_bot_get_updates()

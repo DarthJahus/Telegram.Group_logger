@@ -7,6 +7,9 @@
 #     (1.0.0)               - First code
 # * 2015-09-04 :
 #     (1.0.1)               - Showing sender.id in bot log.
+# * 2015-09-06 :
+#     (1.1.1)               - Sending log via Telegram
+#                             Command /get_log
 #---------------------------------------------------------------
 # IMPORTS
 #---------------------------------------------------------------
@@ -157,6 +160,26 @@ class telegram_classes_Message:
 	def __str__(self):
 		return "Message #%s at %s. From %s to %s." % (self.message_id, self.date, self.sender, self.chat)
 #
+class telegram_classes_Document:
+	def __init__(self, data_json):
+		self.file_id = data_json.get("file_id")
+		if "thumb" in data_json:
+			self.thumb = data_json.get("thumb")
+		else:
+			self.thumb = None
+		if "file_name" in data_json:
+			self.file_name = data_json.get("file_name")
+		else:
+			self.file_name = None
+		if "mime_type" in data_json:
+			self.mime_type = data_json.get("mime_type")
+		else:
+			self.mime_type = None
+		if "file_size" in data_json:
+			self.file_size = data_json.get("file_size")
+		else:
+			self.file_size = None			
+#
 class telegram_classes_Update:
 	def __init__(self, data_json):
 		self.message = telegram_classes_Message(data_json.get("message"))
@@ -263,6 +286,23 @@ def telegram_bot_read_message(message):
 	else:
 		print("-- read_message(): Message type unhandled")
 #
+def telegram_bot_send_file(chat_id, file_name, reply_to_message_id = None, reply_markup = None, file_name_suppl = '', file_ext = '.txt'):
+	head_data = {
+		"chat_id": chat_id
+		}
+	if reply_to_message_id != None:
+		head_data.update([("reply_to_message_id", reply_to_message_id)])
+	if reply_markup != None:
+		head_data.update([("reply_markup", reply_markup)])
+	_file = {'document': (file_name + file_name_suppl + file_ext, open(file_name + file_ext, 'rb'), 'text/plain')}
+	req = requests.get(url = "%s%s%s" % (telegram_bot_request, telegram_bot_token, "/sendDocument"), params = head_data, files = _file)
+	if (req.status_code != 200):
+		print("-- send_message(): Error %s" % req.status_code)
+	else:
+		req_json = req.json()
+		print(req_json)
+		#TODO: Verify if send message is equal to received message
+#
 #---------------------------------------------------------------
 # Message handles
 #---------------------------------------------------------------
@@ -290,7 +330,7 @@ def telegram_bot_handle_message_text(message):
 			# Groupe + Hilight
 			# /command@Dj4xBot
 			_bot_username = _text[1:].split('@')[1][:len(telegram_bot_info.username)].lower()
-			print("_bot_username = %s" % _bot_username)
+			#print("_bot_username = %s" % _bot_username)
 			if _bot_username.lower() == telegram_bot_info.username.lower():
 				_command = _text[1:].split('@')[0]
 				_args = (" ".join(_text[1:].split('@')[1:])[len(_bot_username):]).split()
@@ -351,7 +391,7 @@ def telegram_bot_telegram_bot_command_start(context):
 	print("Started!")
 def telegram_bot_command_about(context, original_message_id):
 	# Fournit le texte d'à propos
-	telegram_bot_send_message(context, "@Dj4xBot\nDj4x version 3.15.20\nPar @Jahus\nUtilisez /aide pour avoir la liste des commandes.", original_message_id)
+	telegram_bot_send_message(context, "@%(name)s\n%(name)s version %(version)s\nPar @Jahus\nUtilisez /aide pour avoir la liste des commandes." % {"name": __name__, "version": __version__}, original_message_id)
 def telegram_bot_command_user(msg, args, user, original_message_id, chat = None):
 	global PAUSE
 	global HALT
@@ -366,15 +406,24 @@ def telegram_bot_command_user(msg, args, user, original_message_id, chat = None)
 	# LOGGER
 	# Switches logger on/off
 	if cmd.lower() == "log_pause" and user.id in config.get("telegram_params").get("admins"):
-		channel = config.get("telegram_params").get("groups").get(chat.id.__str__())
-		PAUSE.update([(channel, not PAUSE.get(channel))])
-		if PAUSE.get(channel):
-			action = "paused"
+		if chat.id.__str__() in config.get("telegram_params").get("groups"):
+			channel = config.get("telegram_params").get("groups").get(chat.id.__str__())
+			PAUSE.update([(channel, not PAUSE.get(channel))])
+			if PAUSE.get(channel):
+				action = "paused"
+			else:
+				action = "resumed"
+			telegram_bot_send_message(user.id, "Logging '%s' %s" % (channel, action))
 		else:
-			action = "resumed"
-		telegram_bot_send_message(user.id, "Logging '%s' %s" % (channel, action))
+			telegram_bot_send_message(chat.id, "Sorry, %s, this channel is not logged." % (user.first_name), reply_to_message_id = original_message_id)
 	if cmd.lower() == "bot_halt" and user.id in config.get("telegram_params").get("admins"):
 		HALT = True
+	if cmd.lower() == "get_log" and user.id in config.get("telegram_params").get("admins"):
+		if chat.id.__str__() in config.get("telegram_params").get("groups"):
+			channel = config.get("telegram_params").get("groups").get(chat.id.__str__())
+			telegram_bot_send_file(user.id, channel + "_log", file_name_suppl = (" - %s" % (time.strftime("%Y-%m-%d @ %H-%M-%S", time.gmtime()))), file_ext = ".log")
+		else:
+			telegram_bot_send_message(chat.id, "Sorry, %s, this channel is not logged." % (user.first_name), reply_to_message_id = original_message_id)
 #
 telegram_bot_get_bot_info()
 print("EoF@offset: %s" % telegram_bot_offset)

@@ -81,9 +81,13 @@ Other types may or may not be handled.
 
 Emojis are fully supported and saved into the log file using the UNICODE standard. For best readings, use `Segoe UI Emoji` font as it has been made specially to support UNICODE emojis.
 
+## Log dump file
+
+An admin may ask the bot for a log by using `/get_log` command on a monitored group. The log-file is sent in private.
+
 ## Contribution
 
-Other feature to come may be uploading the logs to an FTP folder using a command like `/upload_ftp`.
+~~Other feature to come may be uploading the logs to an FTP folder using a command like `/upload_ftp`.~~
 
 Don't hesitate to push your contribution, like with the Imgur API ;-)
 

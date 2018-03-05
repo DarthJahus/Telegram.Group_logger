@@ -95,10 +95,5 @@ Don't hesitate to push your contribution, like with the Imgur API ;-)
 
 _Find me on:_
 
-> Twitter: [@Jahus_](http://j.mp/Jahus_twitter)
-> 
-> Facebook: [Jahus' page](http://j.mp/Jahus_fb)
-> 
-> Reddit: [/u/Jahus](http://j.mp/Jahus_reddit)
-> 
-> GitHub: [AhmedDjoudi](http://j.mp/Jahus_github)
+> Twitter: [@JahusVagabond](https://twitter.com/JahusVagabond)
+> Telegram: [@Jahus](https://t.me/Jahus)

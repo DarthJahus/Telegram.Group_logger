@@ -1,3 +1,5 @@
+:warning: This project has been discontinued long ago. If you need a logger for your Telegram group, don't use this. You can hire me to make one for you, but not to adapt this project. Thank you for your understanding.
+
 # Telegram.Group_logger
 Logger for Telegram groups.
 
